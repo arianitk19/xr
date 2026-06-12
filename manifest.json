@@ -1,0 +1,10 @@
+{
+  "name": "Xhamia e Ratkocit",
+  "short_name": "Xhamia",
+  "start_url": ".",
+  "scope": ".",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#030806",
+  "theme_color": "#030806"
+}
