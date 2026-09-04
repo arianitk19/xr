@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xhamia e Ratkocit</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#030806">
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#c5a059; --goldl:#f3e5ab; --golddim:rgba(197,160,89,.3);
+  --em:#10b981;   --em2:rgba(16,185,129,.18);
+  --glass:rgba(255,255,255,.04); --border:rgba(255,255,255,.09);
+  --txt:#fff; --dim:rgba(255,255,255,.42);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  width:100%;height:100%;overflow:hidden;cursor:none;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:#030806;
+  color:var(--txt);-webkit-font-smoothing:antialiased;
+}
+/* Skena fikse 1920x1080 qe shkallezohet automatikisht ne cdo rezolucion (pa zoom manual) */
+#stage{
+  position:absolute;top:50%;left:50%;
+  width:1920px;height:1080px;
+  transform:translate(-50%,-50%) scale(1);
+  transform-origin:center center;
+  display:flex;flex-direction:column;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 35%,#0a2018 0%,#030806 100%);
+}
+
+/* ── FONTS ── */
+.D{font-family:'Oswald',sans-serif;}
+.ar{font-family:'Amiri',serif;direction:rtl;}
+.gold-text{
+  background:linear-gradient(160deg,var(--goldl) 0%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* ── GLASS ── */
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+}
+
+/* ── OVERLAYS ── */
+.overlay{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .9s cubic-bezier(.4,0,.2,1);
+}
+.overlay.show{opacity:1;pointer-events:all;}
+/* Tipografia e madhe, por e sigurt për 16:9/4K dhe pa shtyrë navigimin. */
+.dua-ar{font-size:78px!important;max-width:1500px;}
+@media (max-width:1200px){
+  .dua-ar{font-size:64px!important;}
+  #juma-ar{font-size:72px!important;}
+  #juma-al{font-size:46px!important;}
+}
+@media (max-height:800px){
+  .dua-ar{font-size:58px!important;}
+}
+
+
+#ov-focus {background:radial-gradient(ellipse at 50% 45%,#0d3525 0%,#020a05 100%);}
+#ov-adhan {background:radial-gradient(ellipse at 50% 40%,#082918 0%,#020a05 100%);}
+#ov-dua   {background:linear-gradient(160deg,#051f1a 0%,#062a1e 100%);}
+#ov-prayer{background:#010302;}
+#ov-dhikr {background:radial-gradient(ellipse at center,#061a10 0%,#020806 100%);}
+#ov-juma  {background:radial-gradient(ellipse at 50% 40%,#1a1200 0%,#050300 100%);border:2px solid rgba(197,160,89,.3);}
+#ov-ikamet{background:radial-gradient(ellipse at 50% 42%,#0e2a1c 0%,#020a05 100%);}
+
+/* ── ANIMATIONS ── */
+@keyframes aZoom{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+@keyframes aGold{0%,100%{text-shadow:0 0 40px rgba(197,160,89,.5)}50%{text-shadow:0 0 90px rgba(197,160,89,.9),0 0 140px rgba(197,160,89,.25)}}
+@keyframes aRed {0%,100%{opacity:1}50%{opacity:.15}}
+@keyframes aUp  {from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes aCd  {0%,100%{opacity:1}50%{opacity:.82}}
+@keyframes aBox {0%,100%{box-shadow:0 0 20px rgba(197,160,89,.08),inset 0 1px 0 rgba(255,255,255,.04)}50%{box-shadow:0 0 45px rgba(197,160,89,.18),inset 0 1px 0 rgba(255,255,255,.04)}}
+@keyframes aRow {0%,100%{background:rgba(197,160,89,.1)}50%{background:rgba(197,160,89,.17)}}
+@keyframes aGeo {0%{opacity:.035}50%{opacity:.06}100%{opacity:.035}}
+
+.anim-zoom{animation:aZoom 18s infinite ease-in-out;}
+.anim-gold{animation:aGold 2.5s infinite ease-in-out;}
+.anim-red {animation:aRed  1.8s infinite;}
+.anim-up  {animation:aUp   .8s  ease forwards;}
+.anim-cd  {animation:aCd   2.8s ease-in-out infinite;}
+.anim-box {animation:aBox  2.8s ease-in-out infinite;}
+
+/* ── GEOMETRIC PATTERN ── */
+.geo::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg fill='none' stroke='%23c5a059' stroke-width='.4'%3E%3Cpolygon points='45,3 87,22 87,67 45,87 3,67 3,22' opacity='.55'/%3E%3Cpolygon points='45,16 74,30 74,59 45,74 16,59 16,30' opacity='.4'/%3E%3Ccircle cx='45' cy='45' r='12' opacity='.35'/%3E%3C/g%3E%3C/svg%3E");
+  animation:aGeo 6s ease-in-out infinite;
+}
+
+/* ── PRAYER ROW ── */
+.pr-row{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:0 34.6px;
+  align-items:center;
+  padding:7.6px 26.9px;
+  border-radius:9.6px;
+  border-left:3px solid transparent;
+  transition:all .4s ease;
+}
+.pr-row .n{
+  font-family:'Oswald',sans-serif;font-weight:600;
+  font-size:41.6px;
+  letter-spacing:.06em;color:var(--dim);
+  transition:color .4s;
+}
+.pr-row .t{
+  font-family:'Oswald',sans-serif;font-weight:700;
+  font-size:46.4px;
+  text-align:right;color:var(--dim);
+  transition:color .4s;
+}
+.pr-row.active{
+  border-left-color:var(--gold);
+  animation:aRow 2.5s ease-in-out infinite;
+}
+.pr-row.active .n{color:var(--goldl)!important;}
+.pr-row.active .t{color:#fff!important;}
+.pr-row.nxt{background:rgba(16,185,129,.06);border-left-color:rgba(16,185,129,.4);}
+.pr-row.nxt .n,.pr-row.nxt .t{color:rgba(255,255,255,.7);}
+
+/* ── SEPARATOR ── */
+.g-line{background:linear-gradient(90deg,transparent,var(--gold),transparent);height:1px;}
+.e-line{background:linear-gradient(90deg,transparent,var(--em),transparent);height:1px;}
+
+::-webkit-scrollbar{display:none;}
+
+/* ── BOTTOM ROTATOR: TV-safe typography ─────────────────── */
+.rotator-safe{
+  min-width:0;min-height:0;height:100%;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  overflow:hidden;
+}
+.rotator-ar-safe,.rotator-al-safe{
+  width:100%;max-width:1500px;margin-left:auto;margin-right:auto;
+  overflow:hidden;overflow-wrap:anywhere;word-break:normal;
+}
+.rotator-ar-safe{
+  flex:0 1 auto;font-size:30px;line-height:1.08;
+  color:rgba(243,229,171,.95);font-weight:700;
+  margin-bottom:5px;max-height:54px;
+}
+.rotator-al-safe{
+  flex:0 1 auto;font-size:52px;line-height:1.12;
+  color:rgba(255,255,255,.96);font-weight:700;
+  max-width:1650px;max-height:108px;
+}
+/* Teksti shqip është qëllimisht shumë më i madh për lexueshmëri në gjithë xhaminë.
+   Teksti arab mbetet më i vogël për të ruajtur hierarkinë dhe hapësirën. */
+.dua-al{font-size:54px!important;line-height:1.42!important;font-weight:700!important;}
+#juma-al{font-size:52px!important;line-height:1.3!important;font-weight:700!important;}
+@media (max-height:800px){
+  .rotator-ar-safe{font-size:26px;line-height:1.05;max-height:44px;}
+  .rotator-al-safe{font-size:44px;line-height:1.08;max-height:88px;}
+  .dua-al{font-size:46px!important;}
+  #juma-al{font-size:46px!important;}
+}
+@media (min-width:2200px){
+  .rotator-al-safe{font-size:58px;max-width:1800px;max-height:116px;}
+  .dua-al{font-size:60px!important;}
+  #juma-al{font-size:58px!important;}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ════════════════════════════════════════════════════════
+     OVERLAY 0 — FOCUS FLASH
+════════════════════════════════════════════════════════ -->
+<div id="ov-focus" class="overlay">
+  <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:21.6px;">
+    <p class="D" style="font-size:22.4px;font-weight:400;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;">Namazi i ardhshëm</p>
+    <h1 id="fc-name" class="D gold-text" style="font-size:192.0px;font-weight:700;letter-spacing:.06em;line-height:1;">--</h1>
+    <div style="display:flex;align-items:flex-end;gap:0;">
+      <div style="text-align:center;min-width:326.4px;">
+        <p id="fc-h" class="D anim-cd" style="font-size:208.0px;font-weight:700;line-height:1;color:var(--goldl);">00</p>
+        <p class="D" style="font-size:16.0px;letter-spacing:.32em;color:var(--dim);margin-top:5.4px;text-transform:uppercase;">Orë</p>
+      </div>
+      <p class="D" style="font-size:160.0px;color:rgba(197,160,89,.3);line-height:1;padding-bottom:34.6px;">:</p>
+      <div style="text-align:center;min-width:326.4px;">
+        <p id="fc-m" class="D anim-cd" style="font-size:208.0px;font-weight:700;line-height:1;color:var(--goldl);">00</p>
+        <p class="D" style="font-size:16.0px;letter-spacing:.32em;color:var(--dim);margin-top:5.4px;text-transform:uppercase;">Minuta</p>
+      </div>
+      <p class="D" style="font-size:160.0px;color:rgba(197,160,89,.3);line-height:1;padding-bottom:34.6px;">:</p>
+      <div style="text-align:center;min-width:326.4px;">
+        <p id="fc-s" class="D anim-cd" style="font-size:208.0px;font-weight:700;line-height:1;color:var(--goldl);">00</p>
+        <p class="D" style="font-size:16.0px;letter-spacing:.32em;color:var(--dim);margin-top:5.4px;text-transform:uppercase;">Sekonda</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:15.4px;margin-top:10.8px;">
+      <span style="font-size:17.6px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;">Në orën</span>
+      <span id="fc-time" class="D gold-text" style="font-size:44.8px;font-weight:700;">--:--</span>
+    </div>
+  </div>
+  <p id="fc-clock" class="D" style="position:absolute;bottom:32.4px;right:57.6px;font-size:28.8px;color:var(--dim);">00:00:00</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     OVERLAY 1 — EZAN
+════════════════════════════════════════════════════════ -->
+<div id="ov-adhan" class="overlay">
+  <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:32.4px;" class="anim-zoom">
+    <p class="D gold-text" style="font-size:48.0px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;">Koha e Ezanit</p>
+    <h1 id="adhan-name" class="D anim-gold" style="font-size:208.0px;font-weight:700;letter-spacing:.06em;line-height:1;color:#fff;">--</h1>
+    <div class="g-line" style="width:14rem;"></div>
+    <p class="ar" style="font-size:56.0px;max-width:1382.4px;opacity:.9;line-height:1.7;">اللهُ أَكْبَرُ اللهُ أَكْبَرُ &#x200E;• أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ</p>
+  </div>
+  <p id="adhan-clock" class="D gold-text" style="position:absolute;bottom:32.4px;right:57.6px;font-size:48.0px;font-weight:700;opacity:.4;">00:00:00</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     OVERLAY 2 — DUA PAS EZANIT
+════════════════════════════════════════════════════════ -->
+<div id="ov-dua" class="overlay">
+  <div class="glass anim-up" style="border-radius:57.6px;text-align:center;padding:54.0px 115.2px;max-width:1728.0px;display:flex;flex-direction:column;gap:23.8px;">
+    <p class="D gold-text" style="font-size:28.8px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;">— Lutja pas Ezanit —</p>
+    <p class="ar dua-ar" style="font-size:78px;color:var(--goldl);line-height:1.55;">اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ وَالصَّلاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ، إِنَّكَ لَا تُخْلِفُ الْمِيعَادَ</p>
+    <p style="font-size:24px;color:rgba(197,160,89,.6);font-style:italic;line-height:1.65;">Allahumme Rabbe hadhihi-d-da’veti-t-tammeh, we-s-salati-l-kaimeh, ati Muhammeden-il-wesilete wel-fadileh, web’ath-hu makamen mahmuden-illedhi we’adteh, inneke la tukhliful-mi’ad.</p>
+    <div style="height:1px;background:rgba(255,255,255,.08);"></div>
+    <p class="dua-al" style="font-size:42px;font-style:italic;color:rgba(255,255,255,.92);font-weight:600;line-height:1.5;max-width:1536.0px;margin:0 auto;">“O Allah, Zot i kësaj thirrjeje të plotë dhe i namazit që po falet! Jepi Muhamedit (paqja qoftë mbi të) ndërmjetësimin dhe vlerën e lartë, dhe ngrije atë në pozítën e lavdëruar që ia ke premtuar. Vërtet, Ti nuk e shkel premtimin.”</p>
+  </div>
+  <p id="dua-clock" class="D" style="position:absolute;bottom:32.4px;right:57.6px;font-size:32.0px;color:var(--dim);">00:00:00</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     OVERLAY 3 — NAMAZI PO FALET
+════════════════════════════════════════════════════════ -->
+<div id="ov-prayer" class="overlay">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:37.8px;text-align:center;">
+    <p class="ar" style="font-size:48.0px;color:rgba(197,160,89,.5);letter-spacing:.04em;">اللهُ أَكْبَرُ</p>
+    <div>
+      <p class="D" style="font-size:32.0px;font-weight:300;letter-spacing:.55em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:6.5px;">PO FALET</p>
+      <p class="D gold-text" style="font-size:48.0px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;margin-bottom:3.2px;">Namazi i</p>
+      <h1 id="prayer-name" class="D gold-text" style="font-size:208.0px;font-weight:700;line-height:1;letter-spacing:.04em;">--</h1>
+    </div>
+    <div class="g-line" style="width:652.8px;opacity:.55;margin:10.8px 0;"></div>
+    <p class="D" style="font-size:43.2px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.62);text-transform:uppercase;line-height:1.55;">Ju lutemi fikni telefonat<br>dhe mbani qetësi</p>
+  </div>
+  <p id="prayer-clock" class="D" style="position:absolute;bottom:32.4px;right:57.6px;font-size:32.0px;color:rgba(255,255,255,.18);">00:00</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     OVERLAY 4 — DHIKR
+════════════════════════════════════════════════════════ -->
+<div id="ov-dhikr" class="overlay">
+  <div class="anim-up" style="width:100%;padding:0 76.8px;max-width:1824.0px;display:flex;flex-direction:column;gap:27.0px;">
+    <p class="D" style="text-align:center;font-size:22.4px;font-weight:600;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;">— Dhikri pas Namazit —</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:38.4px;">
+      <div class="glass" style="border-radius:38.4px;padding:32.4px 38.4px;text-align:center;">
+        <p class="ar" style="font-size:72.0px;margin-bottom:8.6px;">سُبْحَانَ اللَّهِ</p>
+        <p class="D" style="font-size:32.0px;color:var(--gold);font-weight:600;">SubhanAllah</p>
+        <p class="D" style="font-size:88.0px;color:var(--gold);line-height:1.1;font-weight:700;">x 33</p>
+        <p style="font-size:17.6px;color:var(--dim);margin-top:4.3px;">I Lartmadhërishëm është Allahu</p>
+      </div>
+      <div class="glass" style="border-radius:38.4px;padding:32.4px 38.4px;text-align:center;">
+        <p class="ar" style="font-size:72.0px;margin-bottom:8.6px;">الْحَمْدُ لِلَّهِ</p>
+        <p class="D" style="font-size:32.0px;color:var(--gold);font-weight:600;">Elhamdulilah</p>
+        <p class="D" style="font-size:88.0px;color:var(--gold);line-height:1.1;font-weight:700;">x 33</p>
+        <p style="font-size:17.6px;color:var(--dim);margin-top:4.3px;">Falënderimi i takon Allahut</p>
+      </div>
+      <div class="glass" style="border-radius:38.4px;padding:32.4px 38.4px;text-align:center;border-color:rgba(197,160,89,.2)!important;">
+        <p class="ar" style="font-size:72.0px;margin-bottom:8.6px;">اللَّهُ أَكْبَرُ</p>
+        <p class="D gold-text" style="font-size:32.0px;font-weight:600;">Allahu Ekber</p>
+        <p class="D gold-text" style="font-size:88.0px;line-height:1.1;font-weight:700;">x 34</p>
+        <p style="font-size:17.6px;color:var(--dim);margin-top:4.3px;">Allahu është më i Madhi</p>
+      </div>
+    </div>
+    <div class="e-line"></div>
+    <p class="ar" style="text-align:center;font-size:40.0px;color:rgba(197,160,89,.65);">لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ</p>
+  </div>
+  <p id="dhikr-clock" class="D" style="position:absolute;bottom:32.4px;right:57.6px;font-size:32.0px;color:var(--dim);">00:00:00</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     OVERLAY 5 — XHUMA
+════════════════════════════════════════════════════════ -->
+<div id="ov-juma" class="overlay">
+  <div style="position:absolute;top:32.4px;left:0;right:0;text-align:center;">
+    <p id="juma-title" class="D gold-text" style="font-size:56.0px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">XHUMA E MUBAREK</p>
+    <div class="g-line" style="margin:7.6px auto;width:691.2px;"></div><p id="juma-phase" class="D" style="font-size:18px;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase;">PËRGATITJE · 12:30–13:10</p>
+  </div>
+  <div id="juma-slide" style="text-align:center;padding:0 96.0px;max-width:1400px;transition:opacity .6s ease;">
+    <p id="juma-label" class="D" style="font-size:24px;font-weight:500;letter-spacing:.3em;color:rgba(197,160,89,.5);margin-bottom:21.6px;text-transform:uppercase;"></p>
+    <p id="juma-ar" class="ar" style="font-size:82px;color:var(--goldl);margin-bottom:16.2px;line-height:1.65;"></p>
+    <div class="g-line" style="margin:16.2px auto;width:55%;opacity:.4;"></div>
+    <p id="juma-tr" style="font-size:32px;color:var(--dim);font-style:italic;margin-bottom:7.6px;"></p>
+    <p id="juma-al" style="font-size:38px;color:rgba(255,255,255,.9);font-weight:500;"></p>
+    <p id="juma-src" class="D" style="font-size:19px;color:rgba(197,160,89,.45);margin-top:16.2px;letter-spacing:.15em;"></p>
+  </div>
+  <div style="position:absolute;bottom:32.4px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 57.6px;">
+    <p id="juma-clock" class="D" style="font-size:32.0px;color:rgba(197,160,89,.35);">00:00:00</p>
+    <div id="juma-dots" style="display:flex;gap:10px;align-items:center;"></div>
+    <p class="D" style="font-size:14.4px;letter-spacing:.25em;color:rgba(255,255,255,.18);text-transform:uppercase;">E Premte</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     OVERLAY 6 — IKAMETI (numerim 3 min para ikametit)
+════════════════════════════════════════════════════════ -->
+<div id="ov-ikamet" class="overlay">
+  <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:25.9px;" class="anim-zoom">
+    <p class="D" style="font-size:25.6px;font-weight:400;letter-spacing:.34em;color:var(--dim);text-transform:uppercase;">Përgatituni — deri te ikameti</p>
+    <div>
+      <p class="D gold-text" style="font-size:51.2px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6.5px;">Ikameti i</p>
+      <h1 id="ikamet-name" class="D gold-text" style="font-size:160.0px;font-weight:700;letter-spacing:.05em;line-height:1;">--</h1>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:0;margin-top:10.8px;">
+      <div style="text-align:center;min-width:384.0px;">
+        <p id="ikamet-m" class="D anim-cd" style="font-size:240.0px;font-weight:700;line-height:1;color:#fff;">00</p>
+        <p class="D" style="font-size:17.6px;letter-spacing:.34em;color:var(--dim);margin-top:6.5px;text-transform:uppercase;">Minuta</p>
+      </div>
+      <p class="D" style="font-size:192.0px;color:rgba(197,160,89,.3);line-height:1;padding-bottom:38.4px;">:</p>
+      <div style="text-align:center;min-width:384.0px;">
+        <p id="ikamet-s" class="D anim-cd" style="font-size:240.0px;font-weight:700;line-height:1;color:#fff;">00</p>
+        <p class="D" style="font-size:17.6px;letter-spacing:.34em;color:var(--dim);margin-top:6.5px;text-transform:uppercase;">Sekonda</p>
+      </div>
+    </div>
+    <div class="g-line" style="width:576.0px;opacity:.5;margin-top:10.8px;"></div>
+    <p class="D" style="font-size:35.2px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.6);text-transform:uppercase;">Drejtoni dhe plotësoni rreshtat</p>
+  </div>
+  <p id="ikamet-clock" class="D gold-text" style="position:absolute;bottom:32.4px;right:57.6px;font-size:48.0px;font-weight:700;opacity:.4;">00:00:00</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN DISPLAY
+════════════════════════════════════════════════════════ -->
+<div style="display:flex;flex:1;min-height:0;">
+
+  <!-- ══ LEFT PANEL (39%) ══════════════════════════════════ -->
+  <div style="width:39%;display:flex;flex-direction:column;padding:30.2px 48.0px;border-right:1px solid var(--border);background:rgba(0,0,0,.22);">
+
+    <!-- Clock -->
+    <div id="h-clock" class="D" style="font-size:152.0px;font-weight:700;line-height:1;letter-spacing:-.02em;">00:00</div>
+
+    <!-- Dates -->
+    <div style="display:flex;align-items:center;gap:19.2px;margin-top:5.4px;flex-wrap:wrap;">
+      <p id="h-date" class="D" style="font-size:17.6px;font-weight:400;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;"></p>
+      <div style="width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+      <p id="h-hijri" class="D" style="font-size:17.6px;font-weight:600;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;"></p>
+    </div>
+
+    <!-- Mosque name -->
+    <div style="margin-top:6.5px;">
+      <p style="font-size:15.2px;font-weight:700;letter-spacing:.18em;color:rgba(255,255,255,.28);text-transform:uppercase;">Xhamia e Ratkocit &nbsp;·&nbsp; Imam Daim Abazi</p>
+    </div>
+
+    <!-- Separator -->
+    <div class="g-line" style="margin:19.4px 0;"></div>
+
+    <!-- Table header -->
+    <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 34.6px;padding:0 26.9px 5.4px;margin-bottom:1.1px;">
+      <span></span>
+      <span class="D" style="font-size:40.0px;font-weight:700;letter-spacing:.15em;color:var(--dim);text-align:right;text-transform:uppercase;">Ezani</span>
+      <span class="D" style="font-size:40.0px;font-weight:700;letter-spacing:.15em;color:var(--dim);text-align:right;text-transform:uppercase;">Ikamet</span>
+    </div>
+
+    <!-- Prayer rows -->
+    <div style="display:flex;flex-direction:column;flex:1;justify-content:space-evenly;gap:2.2px;">
+
+      <div class="pr-row" id="row-Fajr">
+        <span class="n">SABAHU</span>
+        <span class="t" id="time-Fajr">--:--</span>
+        <span class="t" id="iq-Fajr" style="color:var(--dim);">--:--</span>
+      </div>
+
+      <div class="pr-row" id="row-Sunrise">
+        <span class="n">L. DIELLIT</span>
+        <span class="t" id="time-Sunrise">--:--</span>
+        <span class="t" style="color:rgba(255,255,255,.18);">—</span>
+      </div>
+
+      <div class="pr-row" id="row-Dhuhr">
+        <span class="n" id="label-Dhuhr">DREKA</span>
+        <span class="t" id="time-Dhuhr">--:--</span>
+        <span class="t" id="iq-Dhuhr" style="color:var(--dim);">--:--</span>
+      </div>
+
+      <div class="pr-row" id="row-Asr">
+        <span class="n">IKINDIA</span>
+        <span class="t" id="time-Asr">--:--</span>
+        <span class="t" id="iq-Asr" style="color:var(--dim);">--:--</span>
+      </div>
+
+      <div class="pr-row" id="row-Maghrib">
+        <span class="n">AKSHAMI</span>
+        <span class="t" id="time-Maghrib">--:--</span>
+        <span class="t" id="iq-Maghrib" style="color:var(--dim);">--:--</span>
+      </div>
+
+      <div class="pr-row" id="row-Isha">
+        <span class="n">JACIA</span>
+        <span class="t" id="time-Isha">--:--</span>
+        <span class="t" id="iq-Isha" style="color:var(--dim);">--:--</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ RIGHT PANEL (61%) — COUNTDOWN DOMINATES ══════════ -->
+  <div class="geo" style="flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:27.0px;padding:32.4px 57.6px;">
+
+    <!-- Next prayer label -->
+    <p class="D" style="font-size:24.0px;font-weight:400;letter-spacing:.28em;color:var(--dim);text-align:center;text-transform:uppercase;">NAMAZI I ARDHSHËM</p>
+
+    <!-- Prayer name — hero -->
+    <h2 id="fp-name" class="D gold-text" style="font-size:120.0px;font-weight:700;letter-spacing:.08em;line-height:1;text-align:center;">--</h2>
+
+    <!-- Thin separator -->
+    <div class="e-line" style="width:50%;opacity:.5;"></div>
+
+    <!-- Countdown — the star -->
+    <div class="anim-box glass" style="border-radius:38.4px;padding:32.4px 76.8px;border-color:rgba(197,160,89,.18)!important;">
+      <div style="display:flex;align-items:flex-end;gap:0;">
+        <div style="text-align:center;min-width:307.2px;">
+          <div id="fp-h" class="D anim-cd" style="font-size:240.0px;font-weight:700;line-height:1;letter-spacing:-.03em;color:#fff;">00</div>
+          <div class="D" style="font-size:17.6px;font-weight:400;letter-spacing:.35em;color:var(--dim);margin-top:4.3px;text-transform:uppercase;">Orë</div>
+        </div>
+        <div class="D" style="font-size:192.0px;color:rgba(197,160,89,.3);line-height:1;padding-bottom:42.2px;user-select:none;">:</div>
+        <div style="text-align:center;min-width:307.2px;">
+          <div id="fp-m" class="D anim-cd" style="font-size:240.0px;font-weight:700;line-height:1;letter-spacing:-.03em;color:#fff;">00</div>
+          <div class="D" style="font-size:17.6px;font-weight:400;letter-spacing:.35em;color:var(--dim);margin-top:4.3px;text-transform:uppercase;">Minuta</div>
+        </div>
+        <div class="D" style="font-size:192.0px;color:rgba(197,160,89,.3);line-height:1;padding-bottom:42.2px;user-select:none;">:</div>
+        <div style="text-align:center;min-width:307.2px;">
+          <div id="fp-s" class="D anim-cd" style="font-size:240.0px;font-weight:700;line-height:1;letter-spacing:-.03em;color:#fff;">00</div>
+          <div class="D" style="font-size:17.6px;font-weight:400;letter-spacing:.35em;color:var(--dim);margin-top:4.3px;text-transform:uppercase;">Sekonda</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next prayer time -->
+    <div style="display:flex;align-items:center;gap:15.4px;">
+      <span style="font-size:17.6px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;">Në orën</span>
+      <span id="fp-at" class="D gold-text" style="font-size:44.8px;font-weight:700;">--:--</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ BOTTOM ROTATOR ══════════════════════════════════════ -->
+<div style="flex-shrink:0;height:172.8px;display:flex;align-items:center;border-top:1px solid var(--border);background:linear-gradient(180deg,rgba(0,0,0,.30),rgba(0,0,0,.18));padding:0 57.6px 0 0;position:relative;gap:0;">
+  <!-- Type label -->
+  <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;width:192.0px;height:100%;border-right:1px solid var(--border);padding:0 19.2px;">
+    <div style="width:3px;height:34%;background:linear-gradient(to bottom,transparent,var(--gold),transparent);margin-bottom:10.8px;"></div>
+    <p id="rotator-type" class="D" style="font-size:22.4px;font-weight:700;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;text-align:center;"></p>
+  </div>
+  <!-- Content -->
+  <div id="rotator-wrap" class="rotator-safe" style="flex:1;text-align:center;padding:0 57.6px;transition:opacity .7s ease;">
+    <p id="rotator-ar" class="ar rotator-ar-safe"></p>
+    <p id="rotator-al" class="rotator-al-safe"></p>
+  </div>
+</div>
+</div><!-- /stage -->
+<script>
+'use strict';
+
+/* ── TIMING ──────────────────────────────────────────────── */
+const TIMING={
+  Fajr:   {adhan:2,duaSec:120,prayer:7,dhikr:4},
+  Dhuhr:  {adhan:2,duaSec:120,prayer:8,dhikr:4},
+  Asr:    {adhan:2,duaSec:120,prayer:8,dhikr:4},
+  // Akshami: pas ezanit lutja qëndron saktësisht 20 sekonda.
+  Maghrib:{adhan:2,duaSec:20,prayer:6,dhikr:4},
+  Isha:   {adhan:2,duaSec:120,prayer:8,dhikr:4},
+};
+// Akshami: ezani + 4 minuta = koha e ikametit.
+// Shembull: ezani 19:21 -> ikameti 19:25.
+const IQAMAH={Fajr:9,Dhuhr:10,Asr:10,Maghrib:4,Isha:10};
+/* Xhuma: sistem i dedikuar 12:30–13:30. */
+const JUMA={startMin:750,preEndMin:790,khutbahEndMin:810,endMin:810};
+const IKAMET_LEAD=180; // sekonda para ikametit qe shfaqet overlay-i (3 min)
+
+/* ── CONFIG ──────────────────────────────────────────────── */
+const C={
+  BIK_URL:'https://cdn.jsdelivr.net/gh/drilonjaha/kohet-e-namazit-kosove-json@main/kosovo-prayer-times.min.json',
+  cityOffset:0,preGlowMin:30,
+};
+
+/* ── ROTATOR ─────────────────────────────────────────────── */
+const ROTATOR=[
+  {t:'KURAN', ar:'إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا',
+   al:'"Me të vërtetë, namazi është detyrë e caktuar me kohë për besimtarët." — En-Nisa: 103'},
+  {t:'KURAN', ar:'وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ وَارْكَعُوا مَعَ الرَّاكِعِينَ',
+   al:'"Faleni namazin, jepni zeqatin dhe bini në ruku bashkë me ata që bien." — El-Bekare: 43'},
+  {t:'KURAN', ar:'وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ وَإِنَّهَا لَكَبِيرَةٌ إِلَّا عَلَى الْخَاشِعِينَ',
+   al:'"Kërkoni ndihmë me durim dhe me namaz — vërtet ajo është e rëndë, por jo për ata që janë të nënshtruar." — El-Bekare: 45'},
+  {t:'KURAN', ar:'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',
+   al:'"Me të vërtetë, Allahu është me durimtarët." — El-Bekare: 153'},
+  {t:'KURAN', ar:'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا',
+   al:'"Ngase me vështirësinë vjen lehtësia! Me të vërtetë, me vështirësinë vjen lehtësia." — Esh-Sherh: 5–6'},
+  {t:'KURAN', ar:'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',
+   al:'"Dhe kush i mbështetet Allahut, Ai i mjafton atij." — Et-Talak: 3'},
+  {t:'KURAN', ar:'اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ',
+   al:'"Allahu është drita e qiejve dhe e tokës." — En-Nur: 35'},
+  {t:'KURAN', ar:'يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',
+   al:'"O besimtarë! Kërkoni ndihmë me durim dhe me namaz. Me të vërtetë, Allahu është me durimtarët." — El-Bekare: 153'},
+  {t:'KURAN', ar:'وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ',
+   al:'"Dhe këshillo, sepse këshilla u bën dobi besimtarëve." — Edh-Dharijat: 55'},
+  {t:'KURAN', ar:'إِنَّمَا يَعْمُرُ مَسَاجِدَ اللَّهِ مَنْ آمَنَ بِاللَّهِ وَالْيَوْمِ الْآخِرِ',
+   al:'"Xhamitë e Allahut i vizitojnë vetëm ata që besojnë në Allah dhe në Ditën e Fundit." — Et-Tevbe: 18'},
+  {t:'HADITH', ar:'الصَّلَاةُ فِي الْجَمَاعَةِ تَفْضُلُ صَلَاةَ الْفَذِّ بِسَبْعٍ وَعِشْرِينَ دَرَجَةً',
+   al:'"Namazi me xhemat është 27 herë më i vlefshëm se namazi i falur vetëm."'},
+  {t:'HADITH', ar:'أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ',
+   al:'"Veprat më të dashura tek Allahu janë ato që bëhen vazhdimisht, edhe nëse janë të vogla."'},
+  {t:'HADITH', ar:'إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ',
+   al:'"Veprat vlerësohen sipas qëllimeve — dhe çdo njeri do të marrë atë që ka synuar."'},
+  {t:'KURAN', ar:'قَدْ أَفْلَحَ الْمُؤْمِنُونَ ۝ الَّذِينَ هُمْ فِي صَلَاتِهِمْ خَاشِعُونَ',
+   al:'"Me të vërtetë, kanë shpëtuar besimtarët — ata që janë të përvuajtur në namazin e tyre." — El-Mu\'minun: 1–2'},
+  {t:'HADITH', ar:'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ',
+   al:'"Kush beson në Allahun dhe në Ditën e Fundit, le të flasë mirë ose le të heshtë." — Buhari & Muslim'},
+  {t:'HADITH', ar:'لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ',
+   al:'"Nuk beson plotësisht askush prej jush, derisa të dojë për vëllanë e tij atë që e do për veten." — Buhari & Muslim'},
+  {t:'HADITH', ar:'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ',
+   al:'"Musliman është ai nga gjuha dhe dora e të cilit janë të sigurt të tjerët." — Buhari'},
+  {t:'HADITH', ar:'اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا وَخَالِقِ النَّاسَ بِخُلُقٍ حَسَنٍ',
+   al:'"Ki frikë Allahun kudo që të jesh; pas së keqes bëj një të mirë që ta fshijë; dhe sillu me njerëzit me moral të bukur." — Tirmidhi'},
+  {t:'HADITH', ar:'مَنْ لَا يَرْحَمُ النَّاسَ لَا يَرْحَمُهُ اللَّهُ',
+   al:'"Atë që nuk i mëshiron njerëzit, nuk e mëshiron Allahu." — Buhari & Muslim'},
+  {t:'HADITH', ar:'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ',
+   al:'"Buzëqeshja jote në fytyrën e vëllait tënd është lëmoshë për ty." — Tirmidhi'},
+  {t:'HADITH', ar:'الطُّهُورُ شَطْرُ الْإِيمَانِ',
+   al:'"Pastërtia është gjysma e besimit." — Muslim'},
+  {t:'HADITH', ar:'أَقْرَبُ مَا يَكُونُ الْعَبْدُ مِنْ رَبِّهِ وَهُوَ سَاجِدٌ فَأَكْثِرُوا الدُّعَاءَ',
+   al:'"Më afër Zotit robi është kur bie në sexhde — andaj shumoni lutjet." — Muslim'},
+  {t:'HADITH', ar:'مَنْ صَلَّى الْبَرْدَيْنِ دَخَلَ الْجَنَّةَ',
+   al:'"Kush i fal dy namazet e freskëta (sabahun dhe ikindinë), hyn në Xhenet." — Buhari & Muslim'},
+  {t:'HADITH', ar:'أَوَّلُ مَا يُحَاسَبُ بِهِ الْعَبْدُ يَوْمَ الْقِيَامَةِ الصَّلَاةُ',
+   al:'"Vepra e parë për të cilën robi do të japë llogari Ditën e Gjykimit është namazi." — Tirmidhi & Nesai'},
+  {t:'HADITH', ar:'مَنْ غَدَا إِلَى الْمَسْجِدِ أَوْ رَاحَ أَعَدَّ اللَّهُ لَهُ نُزُلَهُ مِنَ الْجَنَّةِ كُلَّمَا غَدَا أَوْ رَاحَ',
+   al:'"Kush shkon në xhami në mëngjes a në mbrëmje, Allahu i përgatit një vendpritje në Xhenet sa herë që shkon." — Buhari & Muslim'},
+  {t:'HADITH', ar:'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ',
+   al:'"Më i miri prej jush është ai që e mëson Kuranin dhe ua mëson të tjerëve." — Buhari'},
+  {t:'HADITH', ar:'الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ',
+   al:'"Edhe fjala e mirë është lëmoshë." — Buhari & Muslim'},
+  {t:'HADITH', ar:'مَا نَقَصَتْ صَدَقَةٌ مِنْ مَالٍ',
+   al:'"Asnjë lëmoshë nuk e ka pakësuar ndonjë pasuri." — Muslim'},
+  {t:'HADITH', ar:'الْمُؤْمِنُ الْقَوِيُّ خَيْرٌ وَأَحَبُّ إِلَى اللَّهِ مِنَ الْمُؤْمِنِ الضَّعِيفِ',
+   al:'"Besimtari i fortë është më i mirë dhe më i dashur tek Allahu se besimtari i dobët." — Muslim'},
+  {t:'HADITH', ar:'الْحَيَاءُ لَا يَأْتِي إِلَّا بِخَيْرٍ',
+   al:'"Turpi (modestia) nuk sjell veçse mirësi." — Buhari & Muslim'},
+  {t:'HADITH', ar:'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ طَرِيقًا إِلَى الْجَنَّةِ',
+   al:'"Kush ndjek një rrugë për të kërkuar dije, Allahu ia lehtëson rrugën drejt Xhenetit." — Muslim'},
+  {t:'HADITH', ar:'مَنْ تَوَضَّأَ فَأَحْسَنَ الْوُضُوءَ خَرَجَتْ خَطَايَاهُ مِنْ جَسَدِهِ',
+   al:'"Kush merr abdest dhe e bën atë mirë, gjynahet i dalin nga trupi." — Muslim'},
+  {t:'HADITH', ar:'بَشِّرِ الْمَشَّائِينَ فِي الظُّلَمِ إِلَى الْمَسَاجِدِ بِالنُّورِ التَّامِّ يَوْمَ الْقِيَامَةِ',
+   al:'"Përgëzoji ata që ecin nëpër errësirë drejt xhamive me dritë të plotë Ditën e Gjykimit." — Tirmidhi & Ebu Davud'},
+  {t:'HADITH', ar:'إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ',
+   al:'"Allahu nuk shikon pamjen dhe pasurinë tuaj, por shikon zemrat dhe veprat tuaja." — Muslim'},
+  {t:'HADITH', ar:'سَبْعَةٌ يُظِلُّهُمُ اللَّهُ فِي ظِلِّهِ يَوْمَ لَا ظِلَّ إِلَّا ظِلُّهُ',
+   al:'"Shtatë vetë do t\'i vendosë Allahu nën hijen e Tij ditën kur s\'ka hije tjetër — mes tyre ai zemra e të cilit është e lidhur me xhaminë." — Buhari & Muslim'},
+  {t:'KURAN', ar:'الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',
+   al:'"Ata që besojnë dhe zemrat e të cilëve qetësohen me përmendjen e Allahut. Vërtet, vetëm me përmendjen e Allahut qetësohen zemrat." — Er-Ra\'d: 28'},
+  {t:'KURAN', ar:'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ',
+   al:'"Më kujtoni Mua, që t\'ju kujtoj edhe Unë; falënderomëni dhe mos i mohoni të mirat e Mia." — El-Bekare: 152'},
+  {t:'NJOFTIME', ar:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+   al:'Ju lutemi fikni telefonat gjatë namazit  —  Xhamia e Ratkocit ju fton çdo ditë'},
+];
+
+/* ── JUMA SLIDES ─────────────────────────────────────────── */
+const ROTATOR_EXTRA=[
+  {t:'KURAN',ar:'قُلْ هُوَ اللَّهُ أَحَدٌ',al:'"Thuaj: Ai është Allahu, Një i Vetëm." — El-Ihlas: 1'},
+  {t:'KURAN',ar:'وَاللَّهُ مَعَ الصَّابِرِينَ',al:'"Allahu është me durimtarët." — El-Enfal: 46'},
+  {t:'KURAN',ar:'وَقُلْ رَبِّ زِدْنِي عِلْمًا',al:'"Dhe thuaj: O Zoti im, më shto diturinë." — Ta-Ha: 114'},
+  {t:'KURAN',ar:'فَاذْكُرُونِي أَذْكُرْكُمْ',al:'"Më përmendni Mua, që t’ju përmend edhe Unë." — El-Bekare: 152'},
+  {t:'KURAN',ar:'إِنَّ اللَّهَ يُحِبُّ التَّوَّابِينَ',al:'"Allahu i do ata që pendohen." — El-Bekare: 222'},
+  {t:'HADITH',ar:'الدِّينُ النَّصِيحَةُ',al:'"Feja është këshillë e sinqertë." — Muslim'},
+  {t:'HADITH',ar:'يَسِّرُوا وَلَا تُعَسِّرُوا',al:'"Lehtësoni dhe mos vështirësoni." — Buhari & Muslim'},
+  {t:'HADITH',ar:'الرَّاحِمُونَ يَرْحَمُهُمُ الرَّحْمَنُ',al:'"Mëshiruesit i mëshiron i Gjithëmëshirshmi." — Tirmidhi'},
+  {t:'HADITH',ar:'خَيْرُكُمْ خَيْرُكُمْ لِأَهْلِهِ',al:'"Më i miri prej jush është më i miri ndaj familjes së tij." — Tirmidhi'},
+  {t:'HADITH',ar:'لَا ضَرَرَ وَلَا ضِرَارَ',al:'"Nuk lejohet dëmtimi dhe as kthimi i dëmit me dëm." — Ibn Maxhe'},
+  {t:'HADITH',ar:'مَنْ لَا يَشْكُرِ النَّاسَ لَا يَشْكُرِ اللَّهَ',al:'"Kush nuk i falënderon njerëzit, nuk e falënderon Allahun." — Tirmidhi'},
+  {t:'HADITH',ar:'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ',al:'"Përmendja më e mirë është: La ilahe il-lAllah." — Tirmidhi'},
+  {t:'KURAN',ar:'وَالضُّحَىٰ ۝ وَاللَّيْلِ إِذَا سَجَىٰ',al:'"Pasha paraditen dhe natën kur qetësohet!" — Ed-Duha: 1–2'},
+  {t:'KURAN',ar:'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ ۝ فَصَلِّ لِرَبِّكَ وَانْحَرْ',al:'"Vërtet, Ne të dhamë ty Keutherin. Prandaj falu për Zotin tënd dhe flijo." — El-Keuther: 1–2'},
+  {t:'KURAN',ar:'وَالْعَصْرِ ۝ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ',al:'"Pasha kohën! Me të vërtetë, njeriu është në humbje." — El-Asr: 1–2'},
+  {t:'KURAN',ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',al:'"Thuaj: Kërkoj mbrojtje te Zoti i agimit." — El-Felek: 1'},
+  {t:'KURAN',ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ',al:'"Thuaj: Kërkoj mbrojtje te Zoti i njerëzve." — En-Nas: 1'},
+  {t:'KURAN',ar:'إِنَّ مَعَ الْعُسْرِ يُسْرًا',al:'"Me të vërtetë, me vështirësinë vjen lehtësimi." — Esh-Sherh: 6'},
+  {t:'KURAN',ar:'وَقُلْ رَبِّ اغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ الرَّاحِمِينَ',al:'"Dhe thuaj: O Zoti im, fal dhe mëshiro, sepse Ti je më i miri i mëshiruesve." — El-Mu’minun: 118'},
+  {t:'HADITH',ar:'مَنْ صَمَتَ نَجَا',al:'"Kush hesht, shpëton." — Tirmidhi'},
+  {t:'HADITH',ar:'الْمَرْءُ مَعَ مَنْ أَحَبَّ',al:'"Njeriu do të jetë me atë që do." — Buhari & Muslim'},
+  {t:'HADITH',ar:'مَنْ لَا يَرْحَمْ لَا يُرْحَمْ',al:'"Kush nuk mëshiron, nuk mëshirohet." — Buhari & Muslim'},
+  {t:'HADITH',ar:'اتَّقُوا النَّارَ وَلَوْ بِشِقِّ تَمْرَةٍ',al:'"Ruajuni nga zjarri qoftë edhe me gjysmën e një hurme." — Buhari & Muslim'},
+  {t:'HADITH',ar:'خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ',al:'"Njerëzit më të mirë janë ata që u bëjnë më shumë dobi njerëzve." — transmetim i dobët/jo sahih'},
+];
+ROTATOR.push(...ROTATOR_EXTRA);
+
+const JUMA_PRE_SLIDES=[
+  {label:'Ajeti i Xhumasë',ar:'يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا نُودِيَ لِلصَّلَاةِ مِن يَوْمِ الْجُمُعَةِ فَاسْعَوْا إِلَىٰ ذِكْرِ اللَّهِ',tr:'Ja ejjuhel-ledhine amenu idha nudije lis-salati min jevmil-xhumuati fes’av ila dhikrillah',al:'"O besimtarë! Kur bëhet thirrja për namaz të xhumasë, nxitoni drejt përmendjes së Allahut."',src:'— El-Xhumu’a: 9'},
+  {label:'Hadithi i Xhumasë',ar:'خَيْرُ يَوْمٍ طَلَعَتْ عَلَيْهِ الشَّمْسُ يَوْمُ الْجُمُعَةِ',tr:'Hajru jevmin taleat alejhi-sh-shemsu jevmul-xhumuati',al:'"Dita më e mirë në të cilën lind dielli është dita e xhumasë."',src:'— Sahih Muslim'},
+  {label:'Salavati',ar:'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى مُحَمَّدٍ',tr:'Allahumme salli ve sellim ala Muhammed',al:'"O Allah, dërgoji bekime dhe paqe Muhamedit ﷺ."',src:''},
+  {label:'Surja El-Kehf',ar:'الْحَمْدُ لِلَّهِ الَّذِي أَنزَلَ عَلَىٰ عَبْدِهِ الْكِتَابَ',tr:'El-hamdu lillahil-ledhi enzele ala abdihil-kitab',al:'"Falënderimi i takon Allahut që i zbriti robit të Tij Librin."',src:'— El-Kehf: 1'},
+  {label:'Ora e Pranimit',ar:'فِي الْجُمُعَةِ سَاعَةٌ لَا يُوَافِقُهَا عَبْدٌ مُسْلِمٌ',tr:'Fil-xhumuati saatun la juvafikuha abdun muslimun',al:'"Në ditën e xhumasë është një orë në të cilën Allahu ia pranon lutjen robit musliman."',src:'— Sahih Buhari & Muslim'},
+  {label:'Fjala e Mirë',ar:'الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ',tr:'El-kelimetut-tajjibetu sadakah',al:'"Fjala e mirë është lëmoshë."',src:'— Buhari & Muslim'},
+  {label:'Përmendja e Allahut',ar:'فَاذْكُرُوا اللَّهَ كَثِيرًا',tr:'Vedhkuru-llahe kethiran',al:'"Përmendeni Allahun shumë."',src:'— El-Xhumu’a: 10'},
+];
+
+const JUMA_KHUTBAH_SLIDES=[
+  {label:'HUTBEJA E XHUMASË',ar:'يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ',tr:'Ja ejjuhel-ledhine amenu itteku-llah',al:'"O besimtarë! Kini frikë Allahun dhe jetoni me devotshmëri."',src:'— Kurani, Ali Imran: 102'},
+  {label:'MESAZHI I SOTËM · TAKVA',ar:'إِنَّ أَكْرَمَكُمْ عِندَ اللَّهِ أَتْقَاكُمْ',tr:'Inne ekremekum indallahi etkakum',al:'"Më i nderuari prej jush tek Allahu është ai që ka më shumë devotshmëri."',src:'— El-Huxhurat: 13'},
+  {label:'HUTBE · BESIMI DHE VEPRAT',ar:'وَقُلِ اعْمَلُوا فَسَيَرَى اللَّهُ عَمَلَكُمْ',tr:'Ve kuliamelu fe sejerallahu amelekum',al:'"Dhe thuaj: Veproni, sepse Allahu do ta shohë veprën tuaj."',src:'— Et-Tevbe: 105'},
+  {label:'HUTBE · FAMILJA',ar:'وَعَاشِرُوهُنَّ بِالْمَعْرُوفِ',tr:'Ve ashiruhunne bil-maruf',al:'"Dhe silluni me familjet tuaja me mirësi." Familja ndërtohet me respekt, durim dhe përgjegjësi.',src:'— En-Nisa: 19'},
+  {label:'HUTBE · VËLLAZËRIA',ar:'إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ',tr:'Innemel-muminune ikhvetun',al:'"Besimtarët janë vëllezër." Le ta ruajmë unitetin, ta falim njëri-tjetrin dhe të ndihmojmë njëri-tjetrin.',src:'— El-Huxhurat: 10'},
+  {label:'HUTBE · PËRKUJTIM',ar:'فَاذْكُرُونِي أَذْكُرْكُمْ',tr:'Fedhkuru-ni edhkurkum',al:'"Më përmendni Mua, që t’ju përmend edhe Unë." Zemra e qetësohet kur lidhet me Allahun.',src:'— El-Bekare: 152'},
+  {label:'LUTJE',ar:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً',tr:'Rabbena atina fid-dunja haseneten ve fil-ahireti haseneten',al:'"O Zoti ynë, na jep të mira në këtë botë dhe në botën tjetër."',src:'— El-Bekare: 201'},
+];
+
+const JUMA_CLOSING_SLIDES=[];
+
+/* ── LOOKUPS ─────────────────────────────────────────────── */
+const TR_AL={Fajr:'SABAHU',Dhuhr:'DREKA',Asr:'IKINDIA',Maghrib:'AKSHAMI',Isha:'JACIA'};
+const PR_GEN={Fajr:'SABAHUT',Dhuhr:'DREKËS',Asr:'IKINDISË',Maghrib:'AKSHAMIT',Isha:'JACISË'};
+const MON=['Janar','Shkurt','Mars','Prill','Maj','Qershor','Korrik','Gusht','Shtator','Tetor','Nëntor','Dhjetor'];
+const DAYS_A=['DIE','HËN','MAR','MËR','ENJ','PRE','SHT'];
+const MON_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function hijriStr(d){
+  // Përdor kalendarin Umm al-Qura të implementuar në Intl të browser-it.
+  // Kjo shmang algoritmin e vjetër të gabuar që jepte muaj/vit të pasaktë.
+  try{
+    const fmt=new Intl.DateTimeFormat('sq-AL-u-ca-islamic-umalqura',{
+      day:'numeric',month:'long',year:'numeric'
+    });
+    const parts=fmt.formatToParts(d);
+    const day=parts.find(p=>p.type==='day')?.value||'';
+    const year=parts.find(p=>p.type==='year')?.value||'';
+    const monthRaw=parts.find(p=>p.type==='month')?.value||'';
+    const months={
+      'Muharram':'Muharrem','Safar':'Safar','Rabiʻ I':'Rebiul-Evvel',
+      'Rabiʻ II':'Rebiul-Ahir','Jumada I':'Xhumadel-Ula','Jumada II':'Xhumadel-Ahira',
+      'Rajab':'Rexheb','Shaʻban':'Shaban','Ramadan':'Ramazan',
+      'Shawwal':'Shevval','Dhuʻl-Qiʻdah':'Dhulkade','Dhuʻl-Hijjah':'Dhulhixhe'
+    };
+    const month=months[monthRaw]||monthRaw.replace(/[ʻ']/g,'');
+    return `${day} ${month} ${year} H`;
+  }catch(_){
+    return '— H';
+  }
+}
+
+/* ── STATE ───────────────────────────────────────────────── */
+const S={times:{},mode:'NORMAL',activeKey:null,_dateSet:false,flashLock:false,preview:null,jumaPhase:'pre'};
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+function t2m(s){if(!s)return 0;const[h,m]=s.split(':').map(Number);return h*60+m;}
+function m2t(m){return`${pad(Math.floor(m/60)%24)}:${pad(m%60)}`;}
+function nowSec(){const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();}
+function applyOff(t){if(!t||C.cityOffset===0)return t;return m2t(t2m(t)+C.cityOffset);}
+
+/* ── BIK FETCH ───────────────────────────────────────────── */
+async function fetchTimes(){
+  const d=new Date(),mon=MON_EN[d.getMonth()],day=d.getDate(),key=`bik_${mon}_${day}`;
+  const cached=localStorage.getItem(key);
+  if(cached){
+    try{
+      const p=JSON.parse(cached);
+      p.Dhuhr='13:00';
+      if(p.Sunrise)p.Fajr=m2t(t2m(p.Sunrise)-40);
+      S.times=p;applyTimes();return;
+    }catch(e){}
+  }
+  try{
+    const r=await fetch(C.BIK_URL);
+    const data=await r.json();
+    const e=data.prayer_times[mon].find(x=>x.day===day);
+    if(e){
+      const sun=applyOff(e.sunrise);
+      S.times={Sunrise:sun,Fajr:m2t(t2m(sun)-40),Dhuhr:'13:00',
+               Asr:applyOff(e.asr),Maghrib:applyOff(e.maghrib),Isha:applyOff(e.isha)};
+      localStorage.setItem(key,JSON.stringify(S.times));applyTimes();
+    }
+  }catch(e){
+    S.times={Sunrise:'05:20',Fajr:'04:40',Dhuhr:'13:00',Asr:'16:04',Maghrib:'20:08',Isha:'21:40'};
+    applyTimes();
+  }
+}
+function applyTimes(){
+  const t=S.times;
+  ['Sunrise','Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(k=>{
+    const el=$(`time-${k}`);if(el)el.textContent=t[k]||'--:--';
+  });
+  ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(k=>{
+    const el=$(`iq-${k}`);if(el&&t[k])el.textContent=m2t(t2m(t[k])+IQAMAH[k]);
+  });
+  if(new Date().getDay()===5&&$('label-Dhuhr'))$('label-Dhuhr').textContent='XHUMAJA';
+}
+
+/* ── OVERLAYS ────────────────────────────────────────────── */
+const OV_IDS=['ov-focus','ov-adhan','ov-dua','ov-prayer','ov-dhikr','ov-juma','ov-ikamet'];
+function showOverlay(id){
+  OV_IDS.forEach(o=>{const el=$(o);if(el)el.classList.remove('show');});
+  if(id){const el=$(id);if(el)el.classList.add('show');}
+}
+function applyMode(mode,key){
+  let name=key?(TR_AL[key]||key):'';
+  if(key==='Dhuhr'&&new Date().getDay()===5)name='XHUMA';
+  switch(mode){
+    case 'ADHAN': $('adhan-name').textContent=name;showOverlay('ov-adhan');break;
+    case 'DUA':   showOverlay('ov-dua');break;
+    case 'PRAYER':$('prayer-name').textContent=PR_GEN[key]||name;showOverlay('ov-prayer');break;
+    case 'IKAMET':{$('ikamet-name').textContent=PR_GEN[key]||name;const ti=S.times[key];if(ti){let di=(t2m(ti)*60+IQAMAH[key]*60)-nowSec();if(di<0)di=0;$('ikamet-m').textContent=pad(Math.floor(di/60));$('ikamet-s').textContent=pad(di%60);}showOverlay('ov-ikamet');break;}
+    case 'DHIKR': showOverlay('ov-dhikr');break;
+    case 'JUMA':  setJumaPhase(jumaPhase);renderJumaSlide(jumaIdx);showOverlay('ov-juma');break;
+    default:      showOverlay(null);break;
+  }
+}
+
+/* ── TICK ────────────────────────────────────────────────── */
+function tick(){
+  const now=new Date();
+  const h=now.getHours(),mi=now.getMinutes(),se=now.getSeconds();
+  const ts=`${pad(h)}:${pad(mi)}:${pad(se)}`;
+  $('h-clock').textContent=`${pad(h)}:${pad(mi)}`;
+  ['adhan-clock','dua-clock','prayer-clock','dhikr-clock','fc-clock','juma-clock','ikamet-clock']
+    .forEach(id=>{const el=$(id);if(el)el.textContent=ts;});
+
+  // Focus countdown live
+  if($('ov-focus').classList.contains('show')&&Object.keys(S.times).length){
+    const ns2=nowSec();let minD=Infinity,nk=null;
+    for(const k of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){
+      const t=S.times[k];if(!t)continue;
+      let d=t2m(t)*60-ns2;if(d<=0)d+=86400;
+      if(d<minD){minD=d;nk=k;}
+    }
+    if(nk){
+      $('fc-h').textContent=pad(Math.floor(minD/3600));
+      $('fc-m').textContent=pad(Math.floor(minD%3600/60));
+      $('fc-s').textContent=pad(minD%60);
+    }
+  }
+
+  // Ikamet countdown live (mm:ss)
+  if($('ov-ikamet').classList.contains('show')&&S.activeKey){
+    const ti=S.times[S.activeKey];
+    if(ti){let di=(t2m(ti)*60+IQAMAH[S.activeKey]*60)-nowSec();if(di<0)di=0;
+      $('ikamet-m').textContent=pad(Math.floor(di/60));
+      $('ikamet-s').textContent=pad(di%60);}
+  }
+
+  if(se===0||!S._dateSet){
+    const d=now;
+    $('h-date').textContent=`${DAYS_A[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+    $('h-hijri').textContent=hijriStr(d);
+    S._dateSet=true;
+    if(h===0&&mi===0){localStorage.clear();fetchTimes();}
+  }
+  if(!Object.keys(S.times).length)return;
+  const ns=h*3600+mi*60+se,nm=h*60+mi;
+  // Në preview/test, ora reale vazhdon të ecë por sistemi nuk e zëvendëson ekranin e testit.
+  if(S.preview)return;
+
+  let newMode='NORMAL',activeKey=null;
+  const fri=now.getDay()===5;
+  // E premte: nga 12:30 deri 13:30 TV-ja hyn në sistemin e posaçëm të Xhumasë.
+  // Nuk ndërpritet nga ezani i Drekës; përmbajtja është e dedikuar për Xhumanë.
+  if(fri&&nm>=JUMA.startMin&&nm<JUMA.endMin){
+    newMode='JUMA';
+    if(nm<JUMA.preEndMin)jumaPhase='pre';
+    else jumaPhase='khutbah';
+    if(S.jumaPhase!==jumaPhase){
+      S.jumaPhase=jumaPhase;
+      jumaIdx=0;
+      setJumaPhase(jumaPhase);
+      renderJumaSlide(jumaIdx);
+    }
+  }else{
+    for(const k of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){
+      const t=S.times[k];if(!t)continue;
+      const T=TIMING[k];
+      const ez=t2m(t)*60;
+      const ik=ez+IQAMAH[k]*60;
+      const aEnd=ez+T.adhan*60;
+      const dEnd=aEnd+T.duaSec;
+      const pEnd=ik+T.prayer*60;
+      const zEnd=pEnd+T.dhikr*60;
+      if(ns>=ez&&ns<aEnd){newMode='ADHAN';activeKey=k;break;}
+      if(ns>=aEnd&&ns<dEnd){newMode='DUA';activeKey=k;break;}
+      if(ns>=ik-IKAMET_LEAD&&ns<ik){newMode='IKAMET';activeKey=k;break;}
+      if(ns>=ik&&ns<pEnd){newMode='PRAYER';activeKey=k;break;}
+      if(ns>=pEnd&&ns<zEnd){newMode='DHIKR';activeKey=k;break;}
+    }
+  }
+
+  if(S.flashLock){
+    if(['ADHAN','DUA','PRAYER','DHIKR','IKAMET'].includes(newMode)){
+      S.flashLock=false;S.mode=newMode;S.activeKey=activeKey;applyMode(newMode,activeKey);
+    }else if(newMode==='JUMA'&&!$('ov-juma').classList.contains('show')){
+      S.flashLock=false;S.mode=newMode;S.activeKey=activeKey;applyMode(newMode,activeKey);
+    }
+  }else{
+    if(newMode!==S.mode||activeKey!==S.activeKey){
+      S.mode=newMode;S.activeKey=activeKey;applyMode(newMode,activeKey);
+    }
+  }
+  updateRows(nm);
+  updateCountdown(ns);
+}
+
+function updateRows(nm){
+  ['Sunrise','Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(k=>{
+    const r=$(`row-${k}`);if(r)r.classList.remove('active','nxt');
+  });
+  let nk=null;
+  for(const k of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){
+    const pm=t2m(S.times[k]);
+    const dur=IQAMAH[k]+TIMING[k].prayer+TIMING[k].dhikr;
+    if(nm>=pm&&nm<pm+dur){const r=$(`row-${k}`);if(r)r.classList.add('active');}
+    if(!nk&&nm<pm)nk=k;
+  }
+  if(!nk)nk='Fajr';
+  if(nk){
+    const pm=t2m(S.times[nk]);
+    if(nm>=pm-C.preGlowMin&&nm<pm){const r=$(`row-${nk}`);if(r)r.classList.add('nxt');}
+  }
+}
+
+function updateCountdown(ns){
+  let minDiff=Infinity,nk='--',nkRaw=null;
+  for(const k of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){
+    const t=S.times[k];if(!t)continue;
+    let diff=t2m(t)*60-ns;if(diff<=0)diff+=86400;
+    if(diff<minDiff){minDiff=diff;nk=TR_AL[k];nkRaw=k;}
+  }
+  if($('fp-name'))$('fp-name').textContent=nk;
+  if($('fp-at')&&nkRaw)$('fp-at').textContent=S.times[nkRaw]||'--:--';
+  const v=minDiff===Infinity?0:minDiff;
+  if($('fp-h'))$('fp-h').textContent=pad(Math.floor(v/3600));
+  if($('fp-m'))$('fp-m').textContent=pad(Math.floor(v%3600/60));
+  if($('fp-s'))$('fp-s').textContent=pad(v%60);
+}
+
+/* ── FOCUS FLASH ─────────────────────────────────────────── */
+function showFocus(){
+  if(['ADHAN','DUA','PRAYER','DHIKR','JUMA','IKAMET'].includes(S.mode))return;
+  if(S.flashLock)return;
+  if(!Object.keys(S.times).length)return;
+  const ns=nowSec();let minDiff=Infinity,nk=null;
+  for(const k of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){
+    const t=S.times[k];if(!t)continue;
+    let d=t2m(t)*60-ns;if(d<=0)d+=86400;
+    if(d<minDiff){minDiff=d;nk=k;}
+  }
+  if(!nk)return;
+  $('fc-name').textContent=TR_AL[nk];
+  $('fc-h').textContent=pad(Math.floor(minDiff/3600));
+  $('fc-m').textContent=pad(Math.floor(minDiff%3600/60));
+  $('fc-s').textContent=pad(minDiff%60);
+  $('fc-time').textContent=S.times[nk];
+  S.flashLock=true;showOverlay('ov-focus');
+  setTimeout(()=>{S.flashLock=false;showOverlay(null);},10000);
+}
+
+/* ── ROTATOR ─────────────────────────────────────────────── */
+let rotIdx=0;
+function setRotator(item){
+  const ar=$('rotator-ar'),al=$('rotator-al');
+  ar.textContent=item.ar||'';
+  al.textContent=item.al||'';
+  // Rregullim automatik për tekste të gjata: zvogëlon vetëm tekstin e këtij sektori,
+  // derisa të mbetet brenda lartësisë së panelit 1920×1080. Navigimi nuk preket.
+  requestAnimationFrame(()=>{
+    ar.style.fontSize='30px'; al.style.fontSize='52px';
+    const fits=()=>ar.scrollHeight<=ar.clientHeight+2 && al.scrollHeight<=al.clientHeight+2;
+    let guard=0;
+    while(!fits() && guard++<12){
+      const af=parseFloat(getComputedStyle(ar).fontSize);
+      const lf=parseFloat(getComputedStyle(al).fontSize);
+      if(ar.scrollHeight>ar.clientHeight) ar.style.fontSize=Math.max(23,af-1)+'px';
+      if(al.scrollHeight>al.clientHeight) al.style.fontSize=Math.max(38,lf-1)+'px';
+    }
+  });
+  const tEl=$('rotator-type');
+  if(tEl){
+    tEl.textContent=item.t||'';
+    tEl.style.color=item.t==='KURAN'?'#34d399':item.t==='NJOFTIME'?'rgba(255,255,255,.4)':'var(--gold)';
+  }
+}
+function stepRotator(){
+  const w=$('rotator-wrap');w.style.opacity='0';
+  setTimeout(()=>{rotIdx=(rotIdx+1)%ROTATOR.length;setRotator(ROTATOR[rotIdx]);w.style.opacity='1';},700);
+}
+
+/* ── JUMA ────────────────────────────────────────────────── */
+let jumaPhase='pre';
+let jumaIdx=0;
+
+function getJumaSlides(){
+  if(jumaPhase==='khutbah')return JUMA_KHUTBAH_SLIDES;
+  return JUMA_PRE_SLIDES;
+}
+function setJumaPhase(phase){
+  jumaPhase=phase;
+  jumaIdx=0;
+  const title=$('juma-title'),phaseEl=$('juma-phase');
+  if(phase==='khutbah'){
+    if(title)title.textContent='HUTBEJA E XHUMASË';
+    if(phaseEl)phaseEl.textContent='LIGJËRATA · 13:11–13:30';
+  }else{
+    if(title)title.textContent='XHUMA E MUBAREK';
+    if(phaseEl)phaseEl.textContent='PËRGATITJE · 12:30–13:10';
+  }
+}
+function renderJumaSlide(i){
+  const slides=getJumaSlides(),s=slides[i],sl=$('juma-slide');if(!sl||!s)return;
+  sl.style.opacity='0';
+  setTimeout(()=>{
+    $('juma-label').textContent=s.label||'';$('juma-ar').textContent=s.ar||'';
+    $('juma-tr').textContent=s.tr||'';$('juma-al').textContent=s.al||'';$('juma-src').textContent=s.src||'';
+    const dots=$('juma-dots');
+    if(dots)dots.innerHTML=slides.map((_,j)=>`<div style="width:${j===i?'28px':'10px'};height:10px;border-radius:6px;background:${j===i?'var(--gold)':'rgba(197,160,89,.3)'};transition:all .4s;"></div>`).join('');
+    sl.style.opacity='1';
+  },350);
+}
+function showJuma(phase=jumaPhase){
+  if(S.flashLock)return;
+  S.flashLock=true;
+  setJumaPhase(phase);
+  renderJumaSlide(jumaIdx);
+  showOverlay('ov-juma');
+  setTimeout(()=>{S.flashLock=false;},450);
+}
+
+/* ── INIT ────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',async()=>{
+  const fitStage=()=>{const sc=Math.min(window.innerWidth/1920,window.innerHeight/1080);const st=document.getElementById('stage');if(st)st.style.transform='translate(-50%,-50%) scale('+sc+')';};
+  window.addEventListener('resize',fitStage);
+  document.addEventListener('fullscreenchange',()=>setTimeout(fitStage,60));
+  fitStage();
+  const goFS=()=>{try{const e=document.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen||e.mozRequestFullScreen||function(){}).call(e);}catch(_){}};
+  setTimeout(goFS,400);
+  window.addEventListener('load',()=>setTimeout(goFS,200),{once:true});
+  ['click','keydown','touchstart','pointerdown'].forEach(ev=>window.addEventListener(ev,goFS,{once:true}));
+
+  let testTimer=null;
+  document.addEventListener('keydown',e=>{
+    const k=e.key.toLowerCase();
+    if(k==='t'){
+      clearTimeout(testTimer);
+      const phases=[{mode:'ADHAN',key:'Asr',dur:4000},{mode:'DUA',key:'Asr',dur:4000},
+                    {mode:'PRAYER',key:'Asr',dur:5000},{mode:'DHIKR',key:'Asr',dur:5000},{mode:'NORMAL',key:null,dur:0}];
+      let i=0;(function run(){
+        if(i>=phases.length){S.mode='';applyMode('NORMAL',null);return;}
+        const p=phases[i++];S.mode='';applyMode(p.mode,p.key);S.mode=p.mode;S.activeKey=p.key;
+        if(p.dur>0)testTimer=setTimeout(run,p.dur);
+      })();
+    }
+    if(k==='j'){
+      S.flashLock=false;
+      const phases=[['pre',JUMA_PRE_SLIDES],['khutbah',JUMA_KHUTBAH_SLIDES]];
+      let pi=0;
+      (function nJ(){
+        if(pi>=phases.length){showOverlay(null);return;}
+        setJumaPhase(phases[pi][0]);let local=0;
+        const slides=phases[pi][1];
+        (function nS(){
+          if(local>=slides.length){pi++;nJ();return;}
+          jumaIdx=local++;showJuma(jumaPhase);setTimeout(nS,3500);
+        })();
+      })();
+    }
+    if(k==='f')showFocus();
+  });
+
+  const now=new Date();
+  $('h-date').textContent=`${DAYS_A[now.getDay()]} ${now.getDate()} ${MON[now.getMonth()].toUpperCase()} ${now.getFullYear()}`;
+  $('h-hijri').textContent=hijriStr(now);
+  S._dateSet=true;
+
+  localStorage.clear();
+  await fetchTimes();
+
+  // PREVIEW/TEST: lejon testim pa pritur oraret reale.
+  // ?preview=maghrib-dua | maghrib-ikamet | friday-pre | friday-khutbah
+  const preview=new URLSearchParams(location.search).get('preview');
+  if(preview){
+    const map={
+      'maghrib-dua':['DUA','Maghrib'],
+      'maghrib-ikamet':['IKAMET','Maghrib'],
+      'friday-pre':['JUMA',null,'pre'],
+      'friday-khutbah':['JUMA',null,'khutbah']
+    };
+    const p=map[preview];
+    if(p){
+      const phase=p[2];
+      S.preview=preview;
+      if(phase){S.jumaPhase=phase;setJumaPhase(phase);}
+      S.mode=p[0];S.activeKey=p[1]||null;
+      applyMode(p[0],p[1]);
+    }
+  }
+  setRotator(ROTATOR[0]);
+  $('rotator-type').textContent=ROTATOR[0].t||'';
+
+  setInterval(tick,1000);
+  setInterval(stepRotator,15000);
+  setInterval(showFocus,3*60*1000);
+  setInterval(()=>{                                  // rrotullon salavatet/hadithet/suret gjate xhumase
+    if($('ov-juma').classList.contains('show')){
+      const slides=getJumaSlides();
+      jumaIdx=(jumaIdx+1)%slides.length;
+      renderJumaSlide(jumaIdx);
+    }
+  },13000);
+  tick();
+  setTimeout(showFocus,30000);
+});
+</script>
+</body>
+</html>
